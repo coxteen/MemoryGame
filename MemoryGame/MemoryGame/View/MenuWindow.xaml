@@ -76,6 +76,7 @@
             <Button 
                 Content="New Game" 
                 Style="{StaticResource MenuButtonStyle}"
+                Command="{Binding NewGameCommand}"
                 x:Name="NewGameButton"/>
 
             <Button 

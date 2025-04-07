@@ -21,6 +21,7 @@ namespace MemoryGame.ViewModel
         {
             LogoutCommand = new RelayCommand(Logout);
             AboutCommand = new RelayCommand(ShowAbout);
+            NewGameCommand = new RelayCommand(StartNewGame);
         }
         #endregion
 
@@ -30,6 +31,19 @@ namespace MemoryGame.ViewModel
         {
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Show();
+        }
+        #endregion
+
+        #region New Game
+        public ICommand NewGameCommand { get; }
+        private void StartNewGame()
+        {
+            var menuWindow = Application.Current.Windows
+                    .OfType<MenuWindow>()
+                    .FirstOrDefault();
+            GameWindow gameWindow = new GameWindow();
+            gameWindow.Show();
+            menuWindow.Close();
         }
         #endregion
 
