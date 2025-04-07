@@ -35,12 +35,40 @@ namespace MemoryGame.ViewModel
 
             SelectedUser = Users.FirstOrDefault();
 
+            // Initialize commands
             NextAvatarCommand = new RelayCommand(NextAvatar, CanNavigateAvatar);
             PreviousAvatarCommand = new RelayCommand(PreviousAvatar, CanNavigateAvatar);
             PlayCommand = new RelayCommand(Play, CanPlayGame);
-            NewUserCommand = new RelayCommand(NewUser);
+            NewUserCommand = new RelayCommand(ShowNewUserDialog);
             DeleteUserCommand = new RelayCommand(DeleteUser, CanDeleteUser);
             ExitCommand = new RelayCommand(Exit);
+            SaveNewUserCommand = new RelayCommand(SaveNewUser, CanSaveNewUser);
+            CancelNewUserCommand = new RelayCommand(CancelNewUser);
+        }
+        #endregion
+
+        #region Properties
+        private Visibility _newUserDialogVisibility = Visibility.Collapsed;
+        public Visibility NewUserDialogVisibility
+        {
+            get => _newUserDialogVisibility;
+            set
+            {
+                _newUserDialogVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _newUsername;
+        public string NewUsername
+        {
+            get => _newUsername;
+            set
+            {
+                _newUsername = value;
+                OnPropertyChanged();
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
         #endregion
 
@@ -62,6 +90,8 @@ namespace MemoryGame.ViewModel
         public ICommand NewUserCommand { get; }
         public ICommand DeleteUserCommand { get; }
         public ICommand ExitCommand { get; }
+        public ICommand SaveNewUserCommand { get; }
+        public ICommand CancelNewUserCommand { get; }
 
         private void Exit()
         {
@@ -69,32 +99,48 @@ namespace MemoryGame.ViewModel
             Application.Current.Shutdown();
         }
 
-        private void NewUser()
+        private void ShowNewUserDialog()
         {
-            var dialog = new NewUserDialogWindow
+            // Clear previous input and show dialog
+            NewUsername = string.Empty;
+            NewUserDialogVisibility = Visibility.Visible;
+        }
+
+        private void CancelNewUser()
+        {
+            // Hide the dialog
+            NewUserDialogVisibility = Visibility.Collapsed;
+        }
+
+        private bool CanSaveNewUser()
+        {
+            return !string.IsNullOrWhiteSpace(NewUsername);
+        }
+
+        private void SaveNewUser()
+        {
+            if (string.IsNullOrWhiteSpace(NewUsername))
+                return;
+
+            var username = NewUsername.Trim();
+
+            // Check if username already exists
+            if (Users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
             {
-                Owner = Application.Current.MainWindow
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                var username = dialog.Username;
-
-                // Check if username already exists
-                if (Users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
-                {
-                    MessageBox.Show("A user with this name already exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Create new user with current avatar
-                var newUser = new User(username, _avatarFiles[_currentAvatarIndex]);
-                Users.Add(newUser);
-                SelectedUser = newUser;
-
-                // Save user to settings
-                _userDataService.SaveUser(newUser);
+                MessageBox.Show("A user with this name already exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            // Create new user with current avatar
+            var newUser = new User(username, _avatarFiles[_currentAvatarIndex]);
+            Users.Add(newUser);
+            SelectedUser = newUser;
+
+            // Save user to settings
+            _userDataService.SaveUser(newUser);
+
+            // Hide the dialog
+            NewUserDialogVisibility = Visibility.Collapsed;
         }
 
         private void DeleteUser()
@@ -122,7 +168,7 @@ namespace MemoryGame.ViewModel
         #endregion
 
         #region Avatar Navigation
-        private const string AvatarPath = @"C:\Stuff\Programming\University\Second Year\MAP\MemoryGame\MemoryGame\MemoryGame\res\avatars";
+        private const string AvatarPath = @"C:\Stuff\Programming\University\Second Year\MAP\MemoryGame\MemoryGame\MemoryGame\res\images\avatars";
         private List<string> _avatarFiles;
         private int _currentAvatarIndex;
         private BitmapImage _currentAvatar;
