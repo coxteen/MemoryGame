@@ -113,6 +113,7 @@
             <Button 
                 Content="Options" 
                 Style="{StaticResource MenuButtonStyle}"
+                Command="{Binding OptionsCommand}"
                 x:Name="OptionsButton"/>
 
             <Button 
@@ -258,6 +259,98 @@
                         Style="{StaticResource OverlayButtonStyle}"
                         HorizontalAlignment="Center"
                         Margin="0,0,0,20"/>
+                </Grid>
+            </Border>
+        </Border>
+
+        <!-- Options Overlay -->
+        <Border 
+            Background="#80000000"
+            Visibility="{Binding OptionsVisibility}">
+            <Border 
+                Width="350" 
+                Height="380" 
+                Background="#2A2A2A" 
+                CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Game Options" 
+                        FontSize="24" 
+                        FontWeight="Bold" 
+                        Foreground="White"
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,10"/>
+
+                    <Border 
+                        Grid.Row="1" 
+                        Background="#3A3A3A" 
+                        CornerRadius="10" 
+                        Margin="20,10">
+                        <StackPanel Margin="20" VerticalAlignment="Center">
+                            <TextBlock Text="Time Limit (seconds)" Style="{StaticResource OverlayTextBlockStyle}" Margin="0,5,0,2"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Minimum="10" Maximum="300" Value="{Binding TimeLimit}" TickFrequency="10" 
+                                        IsSnapToTickEnabled="True" Foreground="White" Margin="0,5,10,5"/>
+                                <TextBox Grid.Column="1" Width="50" Text="{Binding TimeLimit, UpdateSourceTrigger=PropertyChanged}" 
+                                         VerticalAlignment="Center" TextAlignment="Center"/>
+                            </Grid>
+
+                            <TextBlock Text="Grid Rows" Style="{StaticResource OverlayTextBlockStyle}" Margin="0,15,0,2"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Minimum="2" Maximum="8" Value="{Binding GridRows}" TickFrequency="1" 
+                                        IsSnapToTickEnabled="True" Foreground="White" Margin="0,5,10,5"/>
+                                <TextBox Grid.Column="1" Width="50" Text="{Binding GridRows, UpdateSourceTrigger=PropertyChanged}" 
+                                         VerticalAlignment="Center" TextAlignment="Center"/>
+                            </Grid>
+
+                            <TextBlock Text="Grid Columns" Style="{StaticResource OverlayTextBlockStyle}" Margin="0,15,0,2"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Minimum="2" Maximum="8" Value="{Binding GridColumns}" TickFrequency="1" 
+                                        IsSnapToTickEnabled="True" Foreground="White" Margin="0,5,10,5"/>
+                                <TextBox Grid.Column="1" Width="50" Text="{Binding GridColumns, UpdateSourceTrigger=PropertyChanged}" 
+                                         VerticalAlignment="Center" TextAlignment="Center"/>
+                            </Grid>
+
+                            <TextBlock Text="{Binding OptionsErrorMessage}" Foreground="#FF6347" FontStyle="Italic" 
+                                       TextWrapping="Wrap" Margin="0,15,0,0" Visibility="{Binding OptionsErrorVisibility}"/>
+
+                            <TextBlock Text="{Binding TotalCardsText}" Style="{StaticResource OverlayTextBlockStyle}" 
+                                       Margin="0,15,0,0" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <Button 
+                            Content="Save" 
+                            Command="{Binding SaveOptionsCommand}"
+                            Style="{StaticResource OverlayButtonStyle}"
+                            Margin="5,0"/>
+
+                        <Button 
+                            Content="Cancel" 
+                            Command="{Binding CloseOptionsCommand}"
+                            Style="{StaticResource OverlayButtonStyle}"
+                            Margin="5,0"/>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Border>

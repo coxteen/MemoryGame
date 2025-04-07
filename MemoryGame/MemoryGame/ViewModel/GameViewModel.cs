@@ -80,13 +80,35 @@ namespace MemoryGame.ViewModel
             }
         }
 
-        private int _timeRemaining = 60;
+        private int _timeRemaining;
         public int TimeRemaining
         {
             get => _timeRemaining;
             set
             {
                 _timeRemaining = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _gridRows;
+        public int GridRows
+        {
+            get => _gridRows;
+            set
+            {
+                _gridRows = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _gridColumns;
+        public int GridColumns
+        {
+            get => _gridColumns;
+            set
+            {
+                _gridColumns = value;
                 OnPropertyChanged();
             }
         }
@@ -153,8 +175,12 @@ namespace MemoryGame.ViewModel
 
         private void InitializeGame()
         {
+            var settings = GameSettings.Instance;
+
             Moves = 0;
-            TimeRemaining = 60;
+            TimeRemaining = settings.TimeLimit;
+            GridRows = settings.Rows;
+            GridColumns = settings.Columns;
             GameOver = false;
             GameMessage = string.Empty;
             MessageVisibility = Visibility.Collapsed;
@@ -203,6 +229,41 @@ namespace MemoryGame.ViewModel
                     Cards.Add(card);
                 }
 
+                // Set grid dimensions from saved state if available
+                if (savedState.GridRows > 0 && savedState.GridColumns > 0)
+                {
+                    GridRows = savedState.GridRows;
+                    GridColumns = savedState.GridColumns;
+                }
+                else
+                {
+                    // Fallback: calculate based on card count
+                    int totalCards = Cards.Count;
+
+                    // Try to find a nice square-ish grid for the cards
+                    int sqrt = (int)Math.Sqrt(totalCards);
+
+                    if (totalCards % sqrt == 0)
+                    {
+                        // Perfect square or rectangle
+                        GridRows = sqrt;
+                        GridColumns = totalCards / sqrt;
+                    }
+                    else
+                    {
+                        // Find factors
+                        for (int i = sqrt; i >= 1; i--)
+                        {
+                            if (totalCards % i == 0)
+                            {
+                                GridRows = i;
+                                GridColumns = totalCards / i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 _gameTimer.Start();
             }
             catch (Exception ex)
@@ -223,7 +284,25 @@ namespace MemoryGame.ViewModel
                     .Concat(Directory.GetFiles(imagePath, "*.jpeg"))
                     .ToList();
 
-                imageFiles = imageFiles.OrderBy(x => _random.Next()).Take(8).ToList();
+                // Calculate how many pairs we need based on grid dimensions
+                int totalCards = GridRows * GridColumns;
+                int pairsNeeded = totalCards / 2;
+
+                // Make sure we have enough images
+                if (imageFiles.Count < pairsNeeded)
+                {
+                    MessageBox.Show($"Not enough images found. Found {imageFiles.Count} but need {pairsNeeded}.",
+                        "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    // Use available images and repeat if necessary
+                    while (imageFiles.Count < pairsNeeded)
+                    {
+                        imageFiles.Add(imageFiles[_random.Next(imageFiles.Count)]);
+                    }
+                }
+
+                // Select random images for pairs
+                imageFiles = imageFiles.OrderBy(x => _random.Next()).Take(pairsNeeded).ToList();
 
                 Cards = new List<Card>();
                 for (int i = 0; i < imageFiles.Count; i++)
@@ -390,6 +469,8 @@ namespace MemoryGame.ViewModel
                     }).ToList(),
                     TimeRemaining = TimeRemaining,
                     Moves = Moves,
+                    GridRows = GridRows,
+                    GridColumns = GridColumns,
                     SavedDate = DateTime.Now
                 };
 

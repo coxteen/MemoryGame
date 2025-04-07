@@ -87,6 +87,8 @@ namespace MemoryGame.Model
         public List<SavedCard> Cards { get; set; }
         public int TimeRemaining { get; set; }
         public int Moves { get; set; }
+        public int GridRows { get; set; }
+        public int GridColumns { get; set; }
         public DateTime SavedDate { get; set; }
 
         public SavedGameState()

@@ -9,8 +9,4 @@
     <AppDesignerFolder>Config</AppDesignerFolder>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
-
 </Project>

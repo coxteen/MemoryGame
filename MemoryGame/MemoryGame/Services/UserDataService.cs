@@ -61,6 +61,8 @@ namespace MemoryGame.Services
                                 }).ToList() ?? new List<SavedCard>(),
                                 TimeRemaining = dto.SavedGameState.TimeRemaining,
                                 Moves = dto.SavedGameState.Moves,
+                                GridRows = dto.SavedGameState.GridRows,
+                                GridColumns = dto.SavedGameState.GridColumns,
                                 SavedDate = dto.SavedGameState.SavedDate
                             };
                         }
@@ -104,6 +106,8 @@ namespace MemoryGame.Services
                         }).ToList(),
                         TimeRemaining = u.SavedGameState.TimeRemaining,
                         Moves = u.SavedGameState.Moves,
+                        GridRows = u.SavedGameState.GridRows,
+                        GridColumns = u.SavedGameState.GridColumns,
                         SavedDate = u.SavedGameState.SavedDate
                     } : null
                 }).ToList();
@@ -181,6 +185,8 @@ namespace MemoryGame.Services
             public List<SavedCardDto> Cards { get; set; }
             public int TimeRemaining { get; set; }
             public int Moves { get; set; }
+            public int GridRows { get; set; }
+            public int GridColumns { get; set; }
             public DateTime SavedDate { get; set; }
         }
 

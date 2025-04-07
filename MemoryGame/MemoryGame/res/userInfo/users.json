@@ -2,8 +2,8 @@
   {
     "Username": "cox",
     "AvatarPath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\avatars\\pinkSky.jpg",
-    "GamesWon": 4,
-    "GamesPlayed": 4,
+    "GamesWon": 5,
+    "GamesPlayed": 6,
     "SavedGameState": null
   },
   {
@@ -112,6 +112,8 @@
       ],
       "TimeRemaining": 54,
       "Moves": 4,
+      "GridRows": 0,
+      "GridColumns": 0,
       "SavedDate": "2025-04-07T19:03:22.7198736+03:00"
     }
   },

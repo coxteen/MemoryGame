@@ -29,6 +29,12 @@ namespace MemoryGame.ViewModel
             OpenGameCommand = new RelayCommand(OpenSavedGame);
             StatisticsCommand = new RelayCommand(ShowStatistics);
             CloseStatisticsCommand = new RelayCommand(CloseStatistics);
+            OptionsCommand = new RelayCommand(ShowOptions);
+            CloseOptionsCommand = new RelayCommand(CloseOptions);
+            SaveOptionsCommand = new RelayCommand(SaveOptions);
+
+            // Load game settings
+            LoadGameSettings();
 
             UpdateStatisticsText();
             UpdateOpenGameState();
@@ -63,6 +69,89 @@ namespace MemoryGame.ViewModel
             set
             {
                 _hasOpenGame = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _optionsVisibility = Visibility.Collapsed;
+        public Visibility OptionsVisibility
+        {
+            get => _optionsVisibility;
+            set
+            {
+                _optionsVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _timeLimit;
+        public int TimeLimit
+        {
+            get => _timeLimit;
+            set
+            {
+                _timeLimit = value;
+                OnPropertyChanged();
+                UpdateTotalCardsText();
+                ValidateOptions();
+            }
+        }
+
+        private int _gridRows;
+        public int GridRows
+        {
+            get => _gridRows;
+            set
+            {
+                _gridRows = value;
+                OnPropertyChanged();
+                UpdateTotalCardsText();
+                ValidateOptions();
+            }
+        }
+
+        private int _gridColumns;
+        public int GridColumns
+        {
+            get => _gridColumns;
+            set
+            {
+                _gridColumns = value;
+                OnPropertyChanged();
+                UpdateTotalCardsText();
+                ValidateOptions();
+            }
+        }
+
+        private string _totalCardsText;
+        public string TotalCardsText
+        {
+            get => _totalCardsText;
+            set
+            {
+                _totalCardsText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _optionsErrorMessage;
+        public string OptionsErrorMessage
+        {
+            get => _optionsErrorMessage;
+            set
+            {
+                _optionsErrorMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _optionsErrorVisibility = Visibility.Collapsed;
+        public Visibility OptionsErrorVisibility
+        {
+            get => _optionsErrorVisibility;
+            set
+            {
+                _optionsErrorVisibility = value;
                 OnPropertyChanged();
             }
         }
@@ -156,6 +245,9 @@ namespace MemoryGame.ViewModel
 
         public ICommand AboutCommand { get; }
         public ICommand CloseAboutCommand { get; }
+        public ICommand OptionsCommand { get; }
+        public ICommand CloseOptionsCommand { get; }
+        public ICommand SaveOptionsCommand { get; }
 
         private void ShowAbout()
         {
@@ -166,6 +258,67 @@ namespace MemoryGame.ViewModel
         {
             AboutVisibility = Visibility.Collapsed;
         }
+
+        #region Options
+        private void LoadGameSettings()
+        {
+            var settings = GameSettings.Instance;
+            TimeLimit = settings.TimeLimit;
+            GridRows = settings.Rows;
+            GridColumns = settings.Columns;
+            UpdateTotalCardsText();
+        }
+
+        private void ShowOptions()
+        {
+            // Reset to current settings
+            LoadGameSettings();
+            OptionsErrorVisibility = Visibility.Collapsed;
+            OptionsVisibility = Visibility.Visible;
+        }
+
+        private void CloseOptions()
+        {
+            OptionsVisibility = Visibility.Collapsed;
+        }
+
+        private void SaveOptions()
+        {
+            if (!ValidateOptions())
+            {
+                return;
+            }
+
+            var settings = GameSettings.Instance;
+            settings.TimeLimit = TimeLimit;
+            settings.Rows = GridRows;
+            settings.Columns = GridColumns;
+
+            OptionsVisibility = Visibility.Collapsed;
+        }
+
+        private bool ValidateOptions()
+        {
+            int totalCards = GridRows * GridColumns;
+
+            if (totalCards % 2 != 0)
+            {
+                OptionsErrorMessage = "The total number of cards (rows × columns) must be even to create pairs.";
+                OptionsErrorVisibility = Visibility.Visible;
+                return false;
+            }
+
+            OptionsErrorVisibility = Visibility.Collapsed;
+            return true;
+        }
+
+        private void UpdateTotalCardsText()
+        {
+            int totalCards = GridRows * GridColumns;
+            int pairs = totalCards / 2;
+            TotalCardsText = $"Total: {totalCards} cards ({pairs} pairs)";
+        }
+        #endregion
 
         public ICommand NewGameCommand { get; }
 
