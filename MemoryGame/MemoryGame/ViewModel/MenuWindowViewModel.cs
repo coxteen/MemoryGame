@@ -16,13 +16,24 @@ namespace MemoryGame.ViewModel
 {
     public class MenuWindowViewModel : INotifyPropertyChanged
     {
+        private MemoryGame.Model.User _currentUser;
+
         #region Constructor
         public MenuWindowViewModel()
         {
+            // Get the current user from application properties
+            _currentUser = App.Current.Properties["CurrentUser"] as MemoryGame.Model.User;
+
+            // Initialize commands
             LogoutCommand = new RelayCommand(Logout);
             AboutCommand = new RelayCommand(ShowAbout);
             CloseAboutCommand = new RelayCommand(CloseAbout);
             NewGameCommand = new RelayCommand(StartNewGame);
+            StatisticsCommand = new RelayCommand(ShowStatistics);
+            CloseStatisticsCommand = new RelayCommand(CloseStatistics);
+
+            // Initialize statistics texts if user is available
+            UpdateStatisticsText();
         }
         #endregion
 
@@ -36,6 +47,100 @@ namespace MemoryGame.ViewModel
                 _aboutVisibility = value;
                 OnPropertyChanged();
             }
+        }
+
+        private Visibility _statisticsVisibility = Visibility.Collapsed;
+        public Visibility StatisticsVisibility
+        {
+            get => _statisticsVisibility;
+            set
+            {
+                _statisticsVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Statistics text properties
+        private string _statsPlayerName;
+        public string StatsPlayerName
+        {
+            get => _statsPlayerName;
+            set
+            {
+                _statsPlayerName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _statsGamesWon;
+        public string StatsGamesWon
+        {
+            get => _statsGamesWon;
+            set
+            {
+                _statsGamesWon = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _statsGamesPlayed;
+        public string StatsGamesPlayed
+        {
+            get => _statsGamesPlayed;
+            set
+            {
+                _statsGamesPlayed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _statsWinRate;
+        public string StatsWinRate
+        {
+            get => _statsWinRate;
+            set
+            {
+                _statsWinRate = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
+        #region Statistics
+        public ICommand StatisticsCommand { get; }
+        public ICommand CloseStatisticsCommand { get; }
+
+        private void UpdateStatisticsText()
+        {
+            if (_currentUser != null)
+            {
+                StatsPlayerName = $"Player: {_currentUser.Username}";
+                StatsGamesWon = $"Games Won: {_currentUser.GamesWon}";
+                StatsGamesPlayed = $"Games Played: {_currentUser.GamesPlayed}";
+                StatsWinRate = $"Win Rate: {_currentUser.WinRate:F1}%";
+            }
+            else
+            {
+                StatsPlayerName = "No user logged in";
+                StatsGamesWon = "Games Won: 0";
+                StatsGamesPlayed = "Games Played: 0";
+                StatsWinRate = "Win Rate: 0.0%";
+            }
+        }
+
+        private void ShowStatistics()
+        {
+            // Update the statistics text before showing the overlay
+            UpdateStatisticsText();
+
+            // Show the Statistics overlay
+            StatisticsVisibility = Visibility.Visible;
+        }
+
+        private void CloseStatistics()
+        {
+            // Hide the Statistics overlay
+            StatisticsVisibility = Visibility.Collapsed;
         }
         #endregion
 

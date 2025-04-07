@@ -285,6 +285,7 @@ namespace MemoryGame.ViewModel
         {
             return SelectedUser != null;
         }
+        // Update the Play method in SignInViewModel.cs
         private void Play()
         {
             if (SelectedUser == null)
@@ -292,6 +293,9 @@ namespace MemoryGame.ViewModel
                 MessageBox.Show("Please select a user to play.", "No User Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            // Store the selected user in the application properties so it can be accessed from other views
+            App.Current.Properties["CurrentUser"] = SelectedUser;
 
             var signInWindow = Application.Current.Windows
                     .OfType<SignInWindow>()

@@ -1,5 +1,6 @@
 ﻿using MemoryGame.Commands;
 using MemoryGame.Model;
+using MemoryGame.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,11 +21,19 @@ namespace MemoryGame.ViewModel
         private Card _firstSelectedCard;
         private Card _secondSelectedCard;
         private bool _isProcessingMatch;
+        private readonly UserDataService _userDataService;
+        private User _currentUser;
 
         #region Constructor
 
         public GameViewModel()
         {
+            // Initialize user data service
+            _userDataService = new UserDataService();
+
+            // Get the current user from the application
+            _currentUser = App.Current.Properties["CurrentUser"] as User;
+
             // Initialize commands
             BackToMenuCommand = new RelayCommand(BackToMenu);
             CardClickCommand = new RelayCommand<Card>(CardClick);
@@ -208,6 +217,20 @@ namespace MemoryGame.ViewModel
             _gameTimer.Stop();
             GameOver = true;
 
+            // Update user statistics
+            if (_currentUser != null)
+            {
+                _currentUser.GamesPlayed++;
+
+                if (isWin)
+                {
+                    _currentUser.GamesWon++;
+                }
+
+                // Save updated user statistics
+                _userDataService.SaveUser(_currentUser);
+            }
+
             if (isWin)
             {
                 GameMessage = "Congratulations! You've matched all cards!";
@@ -274,7 +297,7 @@ namespace MemoryGame.ViewModel
                     }
                     else
                     {
-                        // No match, show cards for 2 seconds before flipping back
+                        // No match, show cards for 1 second before flipping back
                         // Use a timer to delay flipping back
                         DispatcherTimer wrongMatchTimer = new DispatcherTimer
                         {

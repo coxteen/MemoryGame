@@ -125,6 +125,7 @@
             <Button 
                 Content="Statistics" 
                 Style="{StaticResource MenuButtonStyle}"
+                Command="{Binding StatisticsCommand}"
                 x:Name="StatisticsButton"/>
 
             <Button 
@@ -183,6 +184,54 @@
                         Grid.Row="2" 
                         Content="Close" 
                         Command="{Binding CloseAboutCommand}"
+                        Style="{StaticResource OverlayButtonStyle}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,20"/>
+                </Grid>
+            </Border>
+        </Border>
+
+        <Border 
+            Background="#80000000"
+            Visibility="{Binding StatisticsVisibility}">
+                    <Border 
+                Width="200" 
+                Height="300" 
+                Background="#2A2A2A" 
+                CornerRadius="10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock 
+                        Grid.Row="0"
+                        Text="Statistics" 
+                        FontSize="24" 
+                        FontWeight="Bold" 
+                        Foreground="White"
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,10"/>
+
+                            <Border 
+                        Grid.Row="1" 
+                        Background="#3A3A3A" 
+                        CornerRadius="10" 
+                        Margin="20,10">
+                                <StackPanel Margin="20" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding StatsPlayerName}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding StatsGamesWon}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding StatsGamesPlayed}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding StatsWinRate}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button 
+                        Grid.Row="2" 
+                        Content="Close" 
+                        Command="{Binding CloseStatisticsCommand}"
                         Style="{StaticResource OverlayButtonStyle}"
                         HorizontalAlignment="Center"
                         Margin="0,0,0,20"/>
