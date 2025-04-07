@@ -40,14 +40,17 @@ namespace MemoryGame.ViewModel
             PreviousAvatarCommand = new RelayCommand(PreviousAvatar, CanNavigateAvatar);
             PlayCommand = new RelayCommand(Play, CanPlayGame);
             NewUserCommand = new RelayCommand(ShowNewUserDialog);
-            DeleteUserCommand = new RelayCommand(DeleteUser, CanDeleteUser);
+            DeleteUserCommand = new RelayCommand(ShowDeleteConfirmation, CanDeleteUser);
             ExitCommand = new RelayCommand(Exit);
             SaveNewUserCommand = new RelayCommand(SaveNewUser, CanSaveNewUser);
             CancelNewUserCommand = new RelayCommand(CancelNewUser);
+            ConfirmDeleteUserCommand = new RelayCommand(ConfirmDeleteUser);
+            CancelDeleteUserCommand = new RelayCommand(CancelDeleteUser);
         }
         #endregion
 
         #region Properties
+        // New User Dialog Properties
         private Visibility _newUserDialogVisibility = Visibility.Collapsed;
         public Visibility NewUserDialogVisibility
         {
@@ -68,6 +71,29 @@ namespace MemoryGame.ViewModel
                 _newUsername = value;
                 OnPropertyChanged();
                 CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        // Delete Confirmation Properties
+        private Visibility _deleteConfirmationVisibility = Visibility.Collapsed;
+        public Visibility DeleteConfirmationVisibility
+        {
+            get => _deleteConfirmationVisibility;
+            set
+            {
+                _deleteConfirmationVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _deleteConfirmationMessage;
+        public string DeleteConfirmationMessage
+        {
+            get => _deleteConfirmationMessage;
+            set
+            {
+                _deleteConfirmationMessage = value;
+                OnPropertyChanged();
             }
         }
         #endregion
@@ -92,6 +118,8 @@ namespace MemoryGame.ViewModel
         public ICommand ExitCommand { get; }
         public ICommand SaveNewUserCommand { get; }
         public ICommand CancelNewUserCommand { get; }
+        public ICommand ConfirmDeleteUserCommand { get; }
+        public ICommand CancelDeleteUserCommand { get; }
 
         private void Exit()
         {
@@ -99,6 +127,7 @@ namespace MemoryGame.ViewModel
             Application.Current.Shutdown();
         }
 
+        #region New User Methods
         private void ShowNewUserDialog()
         {
             // Clear previous input and show dialog
@@ -142,29 +171,44 @@ namespace MemoryGame.ViewModel
             // Hide the dialog
             NewUserDialogVisibility = Visibility.Collapsed;
         }
+        #endregion
 
-        private void DeleteUser()
+        #region Delete User Methods
+        private void ShowDeleteConfirmation()
         {
             if (SelectedUser == null) return;
 
-            var result = MessageBox.Show($"Are you sure you want to delete user '{SelectedUser.Username}'?",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            // Set confirmation message and show dialog
+            DeleteConfirmationMessage = $"Are you sure you want to delete user '{SelectedUser.Username}'?";
+            DeleteConfirmationVisibility = Visibility.Visible;
+        }
 
-            if (result == MessageBoxResult.Yes)
-            {
-                string username = SelectedUser.Username;
-                Users.Remove(SelectedUser);
-                SelectedUser = Users.FirstOrDefault();
+        private void CancelDeleteUser()
+        {
+            // Hide the confirmation dialog
+            DeleteConfirmationVisibility = Visibility.Collapsed;
+        }
 
-                // Delete user from settings
-                _userDataService.DeleteUser(username);
-            }
+        private void ConfirmDeleteUser()
+        {
+            if (SelectedUser == null) return;
+
+            string username = SelectedUser.Username;
+            Users.Remove(SelectedUser);
+            SelectedUser = Users.FirstOrDefault();
+
+            // Delete user from settings
+            _userDataService.DeleteUser(username);
+
+            // Hide the confirmation dialog
+            DeleteConfirmationVisibility = Visibility.Collapsed;
         }
 
         private bool CanDeleteUser()
         {
             return SelectedUser != null;
         }
+        #endregion
         #endregion
 
         #region Avatar Navigation

@@ -332,5 +332,64 @@
                 </Grid>
             </Border>
         </Border>
+
+        <!-- Delete User Confirmation Overlay -->
+        <Border 
+            Background="#80000000"
+            Visibility="{Binding DeleteConfirmationVisibility}">
+            <Border 
+                Width="350" 
+                Height="230" 
+                Background="#2A2A2A" 
+                CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Confirm Delete" 
+                        FontSize="24" 
+                        FontWeight="Bold" 
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,10"/>
+
+                    <!-- Content -->
+                    <Border 
+                        Grid.Row="1" 
+                        Background="#3A3A3A" 
+                        CornerRadius="10" 
+                        Margin="20,10">
+                        <TextBlock 
+                            Text="{Binding DeleteConfirmationMessage}" 
+                            FontSize="16"
+                            TextWrapping="Wrap"
+                            TextAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="20"/>
+                    </Border>
+
+                    <!-- Buttons -->
+                    <StackPanel 
+                        Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,20">
+                        <Button 
+                            Content="Yes" 
+                            Command="{Binding ConfirmDeleteUserCommand}"
+                            Style="{StaticResource DialogButtonStyle}"/>
+                        <Button 
+                            Content="No" 
+                            Command="{Binding CancelDeleteUserCommand}"
+                            Style="{StaticResource DialogButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Border>
     </Grid>
 </Window>
