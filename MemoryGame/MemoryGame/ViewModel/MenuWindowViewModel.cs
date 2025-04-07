@@ -18,26 +18,22 @@ namespace MemoryGame.ViewModel
     {
         private MemoryGame.Model.User _currentUser;
 
-        #region Constructor
         public MenuWindowViewModel()
         {
-            // Get the current user from application properties
             _currentUser = App.Current.Properties["CurrentUser"] as MemoryGame.Model.User;
 
-            // Initialize commands
             LogoutCommand = new RelayCommand(Logout);
             AboutCommand = new RelayCommand(ShowAbout);
             CloseAboutCommand = new RelayCommand(CloseAbout);
             NewGameCommand = new RelayCommand(StartNewGame);
+            OpenGameCommand = new RelayCommand(OpenSavedGame);
             StatisticsCommand = new RelayCommand(ShowStatistics);
             CloseStatisticsCommand = new RelayCommand(CloseStatistics);
 
-            // Initialize statistics texts if user is available
             UpdateStatisticsText();
+            UpdateOpenGameState();
         }
-        #endregion
 
-        #region Properties
         private Visibility _aboutVisibility = Visibility.Collapsed;
         public Visibility AboutVisibility
         {
@@ -60,7 +56,17 @@ namespace MemoryGame.ViewModel
             }
         }
 
-        // Statistics text properties
+        private bool _hasOpenGame;
+        public bool HasSavedGame
+        {
+            get => _hasOpenGame;
+            set
+            {
+                _hasOpenGame = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _statsPlayerName;
         public string StatsPlayerName
         {
@@ -104,9 +110,18 @@ namespace MemoryGame.ViewModel
                 OnPropertyChanged();
             }
         }
-        #endregion
 
-        #region Statistics
+        private string _savedGameInfo;
+        public string SavedGameInfo
+        {
+            get => _savedGameInfo;
+            set
+            {
+                _savedGameInfo = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand StatisticsCommand { get; }
         public ICommand CloseStatisticsCommand { get; }
 
@@ -130,42 +145,51 @@ namespace MemoryGame.ViewModel
 
         private void ShowStatistics()
         {
-            // Update the statistics text before showing the overlay
             UpdateStatisticsText();
-
-            // Show the Statistics overlay
             StatisticsVisibility = Visibility.Visible;
         }
 
         private void CloseStatistics()
         {
-            // Hide the Statistics overlay
             StatisticsVisibility = Visibility.Collapsed;
         }
-        #endregion
 
-        #region About
         public ICommand AboutCommand { get; }
         public ICommand CloseAboutCommand { get; }
 
         private void ShowAbout()
         {
-            // Show the About overlay
             AboutVisibility = Visibility.Visible;
         }
 
         private void CloseAbout()
         {
-            // Hide the About overlay
             AboutVisibility = Visibility.Collapsed;
         }
-        #endregion
 
-        #region New Game
         public ICommand NewGameCommand { get; }
 
         private void StartNewGame()
         {
+            if (_currentUser?.SavedGameState != null)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Starting a new game will delete your saved game. Continue?",
+                    "Confirm New Game",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+
+                _currentUser.SavedGameState = null;
+                App.Current.Properties["CurrentUser"] = _currentUser;
+            }
+
+            App.Current.Properties["LoadSavedGame"] = false;
+
             var menuWindow = Application.Current.Windows
                     .OfType<MenuWindow>()
                     .FirstOrDefault();
@@ -173,9 +197,65 @@ namespace MemoryGame.ViewModel
             gameWindow.Show();
             menuWindow.Close();
         }
-        #endregion
 
-        #region Logout
+        public ICommand OpenGameCommand { get; }
+
+        private void UpdateOpenGameState()
+        {
+            HasSavedGame = _currentUser?.SavedGameState != null;
+
+            if (HasSavedGame)
+            {
+                DateTime savedDate = _currentUser.SavedGameState.SavedDate;
+                TimeSpan elapsed = DateTime.Now - savedDate;
+                string timeAgo;
+
+                if (elapsed.TotalDays >= 1)
+                {
+                    timeAgo = $"{(int)elapsed.TotalDays} days ago";
+                }
+                else if (elapsed.TotalHours >= 1)
+                {
+                    timeAgo = $"{(int)elapsed.TotalHours} hours ago";
+                }
+                else if (elapsed.TotalMinutes >= 1)
+                {
+                    timeAgo = $"{(int)elapsed.TotalMinutes} minutes ago";
+                }
+                else
+                {
+                    timeAgo = "just now";
+                }
+
+                SavedGameInfo = $"Last saved: {timeAgo}";
+            }
+            else
+            {
+                SavedGameInfo = "No saved game";
+            }
+        }
+
+        private void OpenSavedGame()
+        {
+            if (_currentUser?.SavedGameState == null)
+            {
+                MessageBox.Show("No saved game found for this user.",
+                    "No Saved Game",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            App.Current.Properties["LoadSavedGame"] = true;
+
+            var menuWindow = Application.Current.Windows
+                    .OfType<MenuWindow>()
+                    .FirstOrDefault();
+            GameWindow gameWindow = new GameWindow();
+            gameWindow.Show();
+            menuWindow.Close();
+        }
+
         public ICommand LogoutCommand { get; }
 
         private void Logout()
@@ -187,15 +267,12 @@ namespace MemoryGame.ViewModel
             signInWindow.Show();
             menuWindow.Close();
         }
-        #endregion
 
-        #region INotifyPropertyChanged Implementation
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace MemoryGame.Model
 {
@@ -10,6 +11,7 @@ namespace MemoryGame.Model
         private string _avatarPath;
         private int _gamesWon;
         private int _gamesPlayed;
+        private SavedGameState _savedGameState;
 
         public string Username
         {
@@ -51,6 +53,16 @@ namespace MemoryGame.Model
             }
         }
 
+        public SavedGameState SavedGameState
+        {
+            get => _savedGameState;
+            set
+            {
+                _savedGameState = value;
+                OnPropertyChanged();
+            }
+        }
+
         public double WinRate => GamesPlayed > 0 ? (double)GamesWon / GamesPlayed * 100 : 0;
 
         public User(string username, string avatarPath, int gamesWon = 0, int gamesPlayed = 0)
@@ -59,14 +71,36 @@ namespace MemoryGame.Model
             AvatarPath = avatarPath;
             GamesWon = gamesWon;
             GamesPlayed = gamesPlayed;
+            SavedGameState = null;
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    public class SavedGameState
+    {
+        public List<SavedCard> Cards { get; set; }
+        public int TimeRemaining { get; set; }
+        public int Moves { get; set; }
+        public DateTime SavedDate { get; set; }
+
+        public SavedGameState()
+        {
+            Cards = new List<SavedCard>();
+            SavedDate = DateTime.Now;
+        }
+    }
+
+    public class SavedCard
+    {
+        public int Id { get; set; }
+        public string ImagePath { get; set; }
+        public bool IsMatched { get; set; }
+        public bool IsFlipped { get; set; }
     }
 }

@@ -2,19 +2,124 @@
   {
     "Username": "cox",
     "AvatarPath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\avatars\\pinkSky.jpg",
-    "GamesWon": 3,
-    "GamesPlayed": 3
+    "GamesWon": 4,
+    "GamesPlayed": 4,
+    "SavedGameState": null
   },
   {
     "Username": "mada",
     "AvatarPath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\avatars\\orangeSky.jpg",
     "GamesWon": 1,
-    "GamesPlayed": 2
+    "GamesPlayed": 2,
+    "SavedGameState": {
+      "Cards": [
+        {
+          "Id": 7,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\dvorakjpgGptxfOiTRlbGHlqiRjyuuJj.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 13,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\mussorgskyjpgelrlFSduJbdjtVkBfFm.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 5,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\mozartjpgWxMVBcwlcSauMkwDbfonlSL.png",
+          "IsMatched": true,
+          "IsFlipped": true
+        },
+        {
+          "Id": 14,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\debussyjpgbgeCvsPdtWcSGFzNqDUvrB.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 1,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\paganinijpgcvfnwpMtQVhllFFovFLfm.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 8,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\orffjpgIJXwUsyeBYZHMyHCTZBZBDYGZ.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 0,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\paganinijpgcvfnwpMtQVhllFFovFLfm.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 15,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\debussyjpgbgeCvsPdtWcSGFzNqDUvrB.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 10,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\dmitripotterjpgwdmVpQnRgeZFWsPyL.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 2,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\vivaldijpgbiWKxPCbMRWFVNKDHtJYmY.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 4,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\mozartjpgWxMVBcwlcSauMkwDbfonlSL.png",
+          "IsMatched": true,
+          "IsFlipped": true
+        },
+        {
+          "Id": 12,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\mussorgskyjpgelrlFSduJbdjtVkBfFm.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 6,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\dvorakjpgGptxfOiTRlbGHlqiRjyuuJj.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 9,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\orffjpgIJXwUsyeBYZHMyHCTZBZBDYGZ.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 11,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\dmitripotterjpgwdmVpQnRgeZFWsPyL.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        },
+        {
+          "Id": 3,
+          "ImagePath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\categories\\musicians\\vivaldijpgbiWKxPCbMRWFVNKDHtJYmY.png",
+          "IsMatched": false,
+          "IsFlipped": false
+        }
+      ],
+      "TimeRemaining": 54,
+      "Moves": 4,
+      "SavedDate": "2025-04-07T19:03:22.7198736+03:00"
+    }
   },
   {
     "Username": "alin",
     "AvatarPath": "C:\\Stuff\\Programming\\University\\Second Year\\MAP\\MemoryGame\\MemoryGame\\MemoryGame\\res\\images\\avatars\\stunningSun.jpg",
     "GamesWon": 1,
-    "GamesPlayed": 1
+    "GamesPlayed": 1,
+    "SavedGameState": null
   }
 ]

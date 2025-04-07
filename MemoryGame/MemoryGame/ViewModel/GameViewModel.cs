@@ -23,35 +23,40 @@ namespace MemoryGame.ViewModel
         private bool _isProcessingMatch;
         private readonly UserDataService _userDataService;
         private User _currentUser;
-
-        #region Constructor
+        private bool _isLoadedGame;
 
         public GameViewModel()
         {
-            // Initialize user data service
             _userDataService = new UserDataService();
-
-            // Get the current user from the application
             _currentUser = App.Current.Properties["CurrentUser"] as User;
 
-            // Initialize commands
             BackToMenuCommand = new RelayCommand(BackToMenu);
             CardClickCommand = new RelayCommand<Card>(CardClick);
+            SaveGameCommand = new RelayCommand(SaveGame);
+            CloseSaveMessageCommand = new RelayCommand(CloseSaveMessage);
 
-            // Create game timer
             _gameTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
             };
             _gameTimer.Tick += GameTimer_Tick;
 
-            // Initialize game
-            InitializeGame();
+            bool loadSavedGame = false;
+            if (App.Current.Properties.Contains("LoadSavedGame"))
+            {
+                loadSavedGame = (bool)App.Current.Properties["LoadSavedGame"];
+                App.Current.Properties["LoadSavedGame"] = false;
+            }
+
+            if (loadSavedGame && _currentUser?.SavedGameState != null)
+            {
+                LoadSavedGame();
+            }
+            else
+            {
+                InitializeGame();
+            }
         }
-
-        #endregion
-
-        #region Game Properties
 
         private List<Card> _cards;
         public List<Card> Cards
@@ -75,7 +80,7 @@ namespace MemoryGame.ViewModel
             }
         }
 
-        private int _timeRemaining = 60; // 60 seconds by default
+        private int _timeRemaining = 60;
         public int TimeRemaining
         {
             get => _timeRemaining;
@@ -119,34 +124,92 @@ namespace MemoryGame.ViewModel
             }
         }
 
-        #endregion
+        private string _saveGameMessage;
+        public string SaveGameMessage
+        {
+            get => _saveGameMessage;
+            set
+            {
+                _saveGameMessage = value;
+                OnPropertyChanged();
+            }
+        }
 
-        #region Commands
+        private Visibility _saveMessageVisibility = Visibility.Collapsed;
+        public Visibility SaveMessageVisibility
+        {
+            get => _saveMessageVisibility;
+            set
+            {
+                _saveMessageVisibility = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand BackToMenuCommand { get; }
         public ICommand CardClickCommand { get; }
-
-        #endregion
-
-        #region Game Methods
+        public ICommand SaveGameCommand { get; }
+        public ICommand CloseSaveMessageCommand { get; }
 
         private void InitializeGame()
         {
-            // Reset game state
             Moves = 0;
             TimeRemaining = 60;
             GameOver = false;
             GameMessage = string.Empty;
             MessageVisibility = Visibility.Collapsed;
+            SaveMessageVisibility = Visibility.Collapsed;
             _firstSelectedCard = null;
             _secondSelectedCard = null;
             _isProcessingMatch = false;
+            _isLoadedGame = false;
 
-            // Load and prepare cards
             LoadCards();
-
-            // Start the timer
             _gameTimer.Start();
+        }
+
+        private void LoadSavedGame()
+        {
+            try
+            {
+                SavedGameState savedState = _currentUser.SavedGameState;
+                if (savedState == null)
+                {
+                    InitializeGame();
+                    return;
+                }
+
+                Moves = savedState.Moves;
+                TimeRemaining = savedState.TimeRemaining;
+                GameOver = false;
+                GameMessage = string.Empty;
+                MessageVisibility = Visibility.Collapsed;
+                SaveMessageVisibility = Visibility.Collapsed;
+                _firstSelectedCard = null;
+                _secondSelectedCard = null;
+                _isProcessingMatch = false;
+                _isLoadedGame = true;
+
+                Cards = new List<Card>();
+                foreach (var savedCard in savedState.Cards)
+                {
+                    var card = new Card
+                    {
+                        Id = savedCard.Id,
+                        ImagePath = savedCard.ImagePath,
+                        IsMatched = savedCard.IsMatched,
+                        IsFlipped = savedCard.IsFlipped
+                    };
+                    Cards.Add(card);
+                }
+
+                _gameTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading saved game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                InitializeGame();
+            }
         }
 
         private void LoadCards()
@@ -155,22 +218,18 @@ namespace MemoryGame.ViewModel
             {
                 string imagePath = @"C:\Stuff\Programming\University\Second Year\MAP\MemoryGame\MemoryGame\MemoryGame\res\images\categories\musicians\";
 
-                // Get all image files
                 var imageFiles = Directory.GetFiles(imagePath, "*.jpg")
                     .Concat(Directory.GetFiles(imagePath, "*.png"))
                     .Concat(Directory.GetFiles(imagePath, "*.jpeg"))
                     .ToList();
 
-                // Shuffle and select 8 images (for 16 cards / 8 pairs)
                 imageFiles = imageFiles.OrderBy(x => _random.Next()).Take(8).ToList();
 
-                // Create pairs of cards
                 Cards = new List<Card>();
                 for (int i = 0; i < imageFiles.Count; i++)
                 {
                     string imagePath1 = imageFiles[i];
 
-                    // Create first card
                     var card1 = new Card
                     {
                         Id = i * 2,
@@ -179,7 +238,6 @@ namespace MemoryGame.ViewModel
                         IsFlipped = false
                     };
 
-                    // Create second card (matching pair)
                     var card2 = new Card
                     {
                         Id = i * 2 + 1,
@@ -192,7 +250,6 @@ namespace MemoryGame.ViewModel
                     Cards.Add(card2);
                 }
 
-                // Shuffle the cards
                 Cards = Cards.OrderBy(x => _random.Next()).ToList();
             }
             catch (Exception ex)
@@ -207,7 +264,6 @@ namespace MemoryGame.ViewModel
 
             if (TimeRemaining <= 0)
             {
-                // Game over - time's up
                 EndGame(false);
             }
         }
@@ -217,7 +273,6 @@ namespace MemoryGame.ViewModel
             _gameTimer.Stop();
             GameOver = true;
 
-            // Update user statistics
             if (_currentUser != null)
             {
                 _currentUser.GamesPlayed++;
@@ -227,7 +282,7 @@ namespace MemoryGame.ViewModel
                     _currentUser.GamesWon++;
                 }
 
-                // Save updated user statistics
+                _currentUser.SavedGameState = null;
                 _userDataService.SaveUser(_currentUser);
             }
 
@@ -253,52 +308,41 @@ namespace MemoryGame.ViewModel
 
         private void CardClick(Card card)
         {
-            // Ignore clicks if processing a match, game is over, card is already matched or flipped
             if (_isProcessingMatch || GameOver || card.IsMatched || card.IsFlipped)
             {
                 return;
             }
 
-            // Flip the card
             card.IsFlipped = true;
 
-            // First card selection
             if (_firstSelectedCard == null)
             {
                 _firstSelectedCard = card;
                 return;
             }
 
-            // Second card selection
             if (_secondSelectedCard == null && card.Id != _firstSelectedCard.Id)
             {
                 _secondSelectedCard = card;
                 Moves++;
 
-                // Check for match
                 _isProcessingMatch = true;
 
-                // Using a dispatcher to delay the check to allow card animation to complete
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if (_firstSelectedCard.ImagePath == _secondSelectedCard.ImagePath)
                     {
-                        // Match found
                         _firstSelectedCard.IsMatched = true;
                         _secondSelectedCard.IsMatched = true;
 
-                        // Reset selections immediately for matches
                         _firstSelectedCard = null;
                         _secondSelectedCard = null;
                         _isProcessingMatch = false;
 
-                        // Check if all cards are matched
                         CheckWinCondition();
                     }
                     else
                     {
-                        // No match, show cards for 1 second before flipping back
-                        // Use a timer to delay flipping back
                         DispatcherTimer wrongMatchTimer = new DispatcherTimer
                         {
                             Interval = TimeSpan.FromSeconds(1)
@@ -306,32 +350,83 @@ namespace MemoryGame.ViewModel
 
                         wrongMatchTimer.Tick += (sender, e) =>
                         {
-                            // Flip cards back
                             _firstSelectedCard.IsFlipped = false;
                             _secondSelectedCard.IsFlipped = false;
 
-                            // Reset selections
                             _firstSelectedCard = null;
                             _secondSelectedCard = null;
                             _isProcessingMatch = false;
 
-                            // Stop the timer
                             wrongMatchTimer.Stop();
                         };
 
-                        // Start the timer
                         wrongMatchTimer.Start();
                     }
-                }), DispatcherPriority.Background, new object[] { });
+                }), System.Windows.Threading.DispatcherPriority.Background, new object[] { });
+            }
+        }
+
+        private void SaveGame()
+        {
+            if (GameOver)
+            {
+                SaveGameMessage = "Cannot save a finished game!";
+                SaveMessageVisibility = Visibility.Visible;
+                return;
+            }
+
+            _gameTimer.Stop();
+
+            try
+            {
+                var savedState = new SavedGameState
+                {
+                    Cards = Cards.Select(c => new SavedCard
+                    {
+                        Id = c.Id,
+                        ImagePath = c.ImagePath,
+                        IsMatched = c.IsMatched,
+                        IsFlipped = c.IsFlipped
+                    }).ToList(),
+                    TimeRemaining = TimeRemaining,
+                    Moves = Moves,
+                    SavedDate = DateTime.Now
+                };
+
+                if (_currentUser != null)
+                {
+                    _currentUser.SavedGameState = savedState;
+                    _userDataService.SaveUser(_currentUser);
+
+                    SaveGameMessage = "Game saved successfully!";
+                }
+                else
+                {
+                    SaveGameMessage = "Error: No user logged in!";
+                }
+            }
+            catch (Exception ex)
+            {
+                SaveGameMessage = $"Error saving game: {ex.Message}";
+            }
+
+            SaveMessageVisibility = Visibility.Visible;
+        }
+
+        private void CloseSaveMessage()
+        {
+            SaveMessageVisibility = Visibility.Collapsed;
+
+            if (!GameOver)
+            {
+                _gameTimer.Start();
             }
         }
 
         private void BackToMenu()
         {
-            // Stop the timer
             _gameTimer.Stop();
 
-            // Open menu window and close game window
             var gameWindow = Application.Current.Windows
                 .OfType<View.GameWindow>()
                 .FirstOrDefault();
@@ -345,17 +440,11 @@ namespace MemoryGame.ViewModel
             }
         }
 
-        #endregion
-
-        #region INotifyPropertyChanged Implementation
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        #endregion
     }
 }

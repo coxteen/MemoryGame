@@ -42,12 +42,29 @@ namespace MemoryGame.Services
                 string json = File.ReadAllText(_jsonFilePath);
                 List<UserDto> userDtos = JsonSerializer.Deserialize<List<UserDto>>(json);
 
-                // Convert DTOs to User objects
                 foreach (var dto in userDtos)
                 {
                     try
                     {
                         var user = new User(dto.Username, dto.AvatarPath, dto.GamesWon, dto.GamesPlayed);
+
+                        if (dto.SavedGameState != null)
+                        {
+                            user.SavedGameState = new SavedGameState
+                            {
+                                Cards = dto.SavedGameState.Cards?.Select(c => new SavedCard
+                                {
+                                    Id = c.Id,
+                                    ImagePath = c.ImagePath,
+                                    IsMatched = c.IsMatched,
+                                    IsFlipped = c.IsFlipped
+                                }).ToList() ?? new List<SavedCard>(),
+                                TimeRemaining = dto.SavedGameState.TimeRemaining,
+                                Moves = dto.SavedGameState.Moves,
+                                SavedDate = dto.SavedGameState.SavedDate
+                            };
+                        }
+
                         users.Add(user);
                         Console.WriteLine($"Loaded user: {dto.Username}, Avatar: {dto.AvatarPath}");
                     }
@@ -75,7 +92,20 @@ namespace MemoryGame.Services
                     Username = u.Username,
                     AvatarPath = u.AvatarPath,
                     GamesWon = u.GamesWon,
-                    GamesPlayed = u.GamesPlayed
+                    GamesPlayed = u.GamesPlayed,
+                    SavedGameState = u.SavedGameState != null ? new SavedGameStateDto
+                    {
+                        Cards = u.SavedGameState.Cards?.Select(c => new SavedCardDto
+                        {
+                            Id = c.Id,
+                            ImagePath = c.ImagePath,
+                            IsMatched = c.IsMatched,
+                            IsFlipped = c.IsFlipped
+                        }).ToList(),
+                        TimeRemaining = u.SavedGameState.TimeRemaining,
+                        Moves = u.SavedGameState.Moves,
+                        SavedDate = u.SavedGameState.SavedDate
+                    } : null
                 }).ToList();
 
                 var options = new JsonSerializerOptions
@@ -143,6 +173,23 @@ namespace MemoryGame.Services
             public string AvatarPath { get; set; }
             public int GamesWon { get; set; }
             public int GamesPlayed { get; set; }
+            public SavedGameStateDto SavedGameState { get; set; }
+        }
+
+        private class SavedGameStateDto
+        {
+            public List<SavedCardDto> Cards { get; set; }
+            public int TimeRemaining { get; set; }
+            public int Moves { get; set; }
+            public DateTime SavedDate { get; set; }
+        }
+
+        private class SavedCardDto
+        {
+            public int Id { get; set; }
+            public string ImagePath { get; set; }
+            public bool IsMatched { get; set; }
+            public bool IsFlipped { get; set; }
         }
     }
 }

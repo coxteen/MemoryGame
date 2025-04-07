@@ -37,6 +37,10 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="#3A3A3A"/>
                             </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#2A2A2A"/>
+                                <Setter Property="Foreground" Value="#6A6A6A"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -117,10 +121,29 @@
                 Command="{Binding NewGameCommand}"
                 x:Name="NewGameButton"/>
 
-            <Button 
-                Content="Open Game" 
-                Style="{StaticResource MenuButtonStyle}"
-                x:Name="OpenGameButton"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Button 
+                    Grid.Row="0"
+                    Content="Open Game" 
+                    Style="{StaticResource MenuButtonStyle}"
+                    Command="{Binding OpenGameCommand}"
+                    IsEnabled="{Binding HasSavedGame}"
+                    x:Name="OpenGameButton"/>
+
+                <TextBlock 
+                    Grid.Row="1"
+                    Text="{Binding SavedGameInfo}" 
+                    Foreground="#AAAAAA"
+                    FontSize="12"
+                    FontStyle="Italic"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,10"/>
+            </Grid>
 
             <Button 
                 Content="Statistics" 
@@ -194,19 +217,19 @@
         <Border 
             Background="#80000000"
             Visibility="{Binding StatisticsVisibility}">
-                    <Border 
+            <Border 
                 Width="200" 
                 Height="300" 
                 Background="#2A2A2A" 
                 CornerRadius="10">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                            <TextBlock 
+                    <TextBlock 
                         Grid.Row="0"
                         Text="Statistics" 
                         FontSize="24" 
@@ -215,20 +238,20 @@
                         HorizontalAlignment="Center"
                         Margin="0,20,0,10"/>
 
-                            <Border 
+                    <Border 
                         Grid.Row="1" 
                         Background="#3A3A3A" 
                         CornerRadius="10" 
                         Margin="20,10">
-                                <StackPanel Margin="20" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding StatsPlayerName}" Style="{StaticResource OverlayTextBlockStyle}"/>
-                                    <TextBlock Text="{Binding StatsGamesWon}" Style="{StaticResource OverlayTextBlockStyle}"/>
-                                    <TextBlock Text="{Binding StatsGamesPlayed}" Style="{StaticResource OverlayTextBlockStyle}"/>
-                                    <TextBlock Text="{Binding StatsWinRate}" Style="{StaticResource OverlayTextBlockStyle}"/>
-                                </StackPanel>
-                            </Border>
+                        <StackPanel Margin="20" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StatsPlayerName}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                            <TextBlock Text="{Binding StatsGamesWon}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                            <TextBlock Text="{Binding StatsGamesPlayed}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                            <TextBlock Text="{Binding StatsWinRate}" Style="{StaticResource OverlayTextBlockStyle}"/>
+                        </StackPanel>
+                    </Border>
 
-                            <Button 
+                    <Button 
                         Grid.Row="2" 
                         Content="Close" 
                         Command="{Binding CloseStatisticsCommand}"
